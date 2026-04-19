@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gerador de Relatórios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --panel:#ffffff;
+      --line:#d9e2f0;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#2563eb;
+      --primary-soft:#dbeafe;
+      --success:#16a34a;
+      --success-soft:#dcfce7;
+      --warning:#d97706;
+      --warning-soft:#fef3c7;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --shadow:0 10px 24px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,system-ui,Arial,sans-serif;
+    }
+
+    .app{
+      max-width:1200px;
+      margin:0 auto;
+      padding:24px;
+    }
+
+    h1,h2,h3{margin:0}
+    p{margin:0}
+
+    .page-title{
+      margin-bottom:16px;
+    }
+
+    .page-title h1{
+      font-size:28px;
+      margin-bottom:6px;
+    }
+
+    .page-title p{
+      color:var(--muted);
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:16px;
+    }
+
+    .start-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .model-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:16px;
+      text-align:left;
+      cursor:pointer;
+      transition:.15s ease;
+      font:inherit;
+    }
+
+    .model-card:hover{
+      border-color:var(--primary);
+      transform:translateY(-1px);
+    }
+
+    .model-card strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .model-card span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .toolbar,
+    .header-grid,
+    .split-grid,
+    .grid-2,
+    .grid-3,
+    .grid-4{
+      display:grid;
+      gap:12px;
+    }
+
+    .header-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
+    .split-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+
+    .form-field label,
+    .field-label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea,
+    textarea,
+    input,
+    select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:11px 12px;
+      font:inherit;
+      color:var(--text);
+      background:#fff;
+    }
+
+    textarea{resize:vertical;min-height:92px}
+
+    .top-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--primary-soft);
+      color:var(--primary);
+      font-weight:700;
+      font-size:13px;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    button{
+      border:0;
+      border-radius:12px;
+      padding:10px 14px;
+      font:inherit;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-secondary{background:#fff;color:var(--primary);border:1px solid #bfdbfe}
+    .btn-ghost{background:#fff;color:var(--muted);border:1px solid var(--line)}
+    .btn-success{background:#0f9f63;color:#fff}
+    .btn-danger{background:#dc2626;color:#fff}
+    .btn-small{padding:8px 10px;font-size:13px}
+
+    details.section{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+      overflow:hidden;
+    }
+
+    details.section > summary{
+      list-style:none;
+      cursor:pointer;
+      padding:16px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight:700;
+    }
+
+    details.section > summary::-webkit-details-marker{display:none}
+
+    .summary-meta{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .section-body{
+      border-top:1px solid var(--line);
+      padding:18px;
+    }
+
+    .subcard{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      background:#fbfdff;
+    }
+
+    .subcard-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+
+    .status-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:12px;
+      padding:10px 0;
+      border-top:1px solid #eef2f7;
+    }
+
+    .status-row:first-child{border-top:0;padding-top:0}
+    .status-row:last-child{padding-bottom:0}
+
+    .status-label strong{
+      display:block;
+      font-size:14px;
+    }
+
+    .status-label span{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .choice-group{
+      display:inline-flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .choice-btn{
+      min-width:88px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .choice-btn.active[data-value="normal"]{background:var(--success-soft);color:#166534;border-color:#86efac}
+    .choice-btn.active[data-value="atenção"]{background:var(--warning-soft);color:#92400e;border-color:#fbbf24}
+    .choice-btn.active[data-value="falha"]{background:var(--danger-soft);color:#991b1b;border-color:#fca5a5}
+    .choice-btn.active[data-value="sim"]{background:var(--primary-soft);color:var(--primary);border-color:#93c5fd}
+    .choice-btn.active[data-value="não"]{background:#f8fafc;color:#334155;border-color:#cbd5e1}
+
+    .inline-note{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .list-stack{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .repeat-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .repeat-card summary{
+      list-style:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:700;
+    }
+
+    .repeat-card summary::-webkit-details-marker{display:none}
+
+    .repeat-body{padding-top:12px}
+
+    .empty-box{
+      border:1px dashed #cbd5e1;
+      border-radius:12px;
+      padding:14px;
+      color:var(--muted);
+      background:#fff;
+      text-align:center;
+    }
+
+    .result-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    #reportText{
+      min-height:520px;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+      white-space:pre-wrap;
+      background:#0f172a;
+      color:#e2e8f0;
+      border-color:#0f172a;
+    }
+
+    .hidden{display:none !important}
+
+    @media (max-width:980px){
+      .header-grid,
+      .split-grid,
+      .grid-2,
+      .grid-3,
+      .grid-4{grid-template-columns:1fr}
+
+      .status-row{grid-template-columns:1fr}
+      .choice-group{justify-content:flex-start}
+      .app{padding:16px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="page-title">
+      <h1>Gerador de Relatórios</h1>
+      <p>Versão compacta: mantém todas as informações, mas com preenchimento mais rápido e menos poluição visual.</p>
+    </div>
+
+    <section id="startScreen" class="card">
+      <h2>Escolha um modelo</h2>
+      <p class="inline-note" style="margin-top:6px;">Os modelos continuam com todos os dados, mas a tela agora abre em formato mais enxuto.</p>
+      <div class="start-grid">
+        <button type="button" class="model-card" data-model="BDAC">
+          <strong>RELATÓRIO JORNAL BDAC</strong>
+          <span>Carrega checklist, execução, ocorrências e entradas ao vivo.</span>
+        </button>
+        <button type="button" class="model-card" data-model="JAC1">
+          <strong>RELATÓRIO JORNAL JAC1</strong>
+          <span>Preenchimento rápido com modelo pronto.</span>
+        </button>
+        <button type="button" class="model-card" data-model="JAC2">
+          <strong>RELATÓRIO JORNAL JAC2</strong>
+          <span>Todos os campos permanecem editáveis.</span>
+        </button>
+        <button type="button" id="customStart" class="model-card">
+          <strong>COMEÇAR EM BRANCO</strong>
+          <span>Usar estrutura vazia com o layout compacto.</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="reportForm" class="hidden">
+      <div class="top-bar">
+        <div class="badge">Modelo: <span id="selectedModelLabel">Custom</span></div>
+        <div class="actions">
+          <button type="button" id="markAllNormal" class="btn-secondary">Marcar checklists como normal</button>
+          <button type="button" id="expandAll" class="btn-ghost">Expandir tudo</button>
+          <button type="button" id="collapseAll" class="btn-ghost">Recolher tudo</button>
+          <button type="button" id="backToModels" class="btn-ghost">Trocar modelo</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="header-grid">
+          <div class="form-field">
+            <label for="jornal">Jornal</label>
+            <select id="jornal" name="jornal">
+              <option value="">Selecione</option>
+              <option value="BDAC">BDAC</option>
+              <option value="JAC1">JAC1</option>
+              <option value="JAC2">JAC2</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="data">Data</label>
+            <input id="data" name="data" placeholder="10/04/2026">
+          </div>
+          <div class="form-field">
+            <label for="equipe">Equipe técnica</label>
+            <input id="equipe" name="equipe" placeholder="Igor e Cladeylton">
+          </div>
+          <div class="form-field">
+            <label for="horarioInicio">Início</label>
+            <input id="horarioInicio" placeholder="07:30">
+          </div>
+          <div class="form-field">
+            <label for="horarioFim">Fim</label>
+            <input id="horarioFim" placeholder="09:00">
+          </div>
+        </div>
+      </section>
+
+      <details class="section" open>
+        <summary>
+          <span>Checklists</span>
+          <span class="summary-meta">Switcher + Estúdio</span>
+        </summary>
+        <div class="section-body split-grid">
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Switcher</h3>
+              <div class="actions">
+                <button type="button" class="btn-small btn-secondary" id="switcherAllNormal">Tudo normal</button>
+              </div>
+            </div>
+            <div id="switcherFields"></div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Estúdio</h3>
+              <div class="actions">
+                <button type="button" class="btn-small btn-secondary" id="studioAllNormal">Tudo normal</button>
+              </div>
+            </div>
+            <div id="estudioFields"></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>
+          <span>Execução do jornal</span>
+          <span class="summary-meta">Horários, editor-chefe e playout</span>
+        </summary>
+        <div class="section-body grid-4">
+          <div class="form-field">
+            <label for="horarioTeste">Horário dos testes</label>
+            <input id="horarioTeste">
+          </div>
+          <div class="form-field">
+            <label for="horarioPreparacao">Início da preparação</label>
+            <input id="horarioPreparacao">
+          </div>
+          <div class="form-field">
+            <label for="horarioPosicionamento">Posicionamento no switcher</label>
+            <input id="horarioPosicionamento">
+          </div>
+          <div class="form-field">
+            <label for="horarioTestePlayout">Teste de playout</label>
+            <input id="horarioTestePlayout">
+          </div>
+          <div class="form-field">
+            <label for="horarioTesteMicrofones">Teste de microfones</label>
+            <input id="horarioTesteMicrofones">
+          </div>
+          <div class="form-field">
+            <label for="nomeEditorChefe">Editor-chefe / produtor</label>
+            <input id="nomeEditorChefe">
+          </div>
+          <div class="form-field">
+            <label for="modoPlayout">Modo de playout</label>
+            <select id="modoPlayout">
+              <option value="integração eMAM/Anews">integração eMAM/Anews</option>
+              <option value="playout local">playout local</option>
+              <option value="outro">outro</option>
+            </select>
+          </div>
+          <div class="form-field" style="grid-column:1 / -1;">
+            <label for="execObservacao">Observação de execução</label>
+            <textarea id="execObservacao" rows="3"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>
+          <span>Ocorrências</span>
+          <span class="summary-meta">Técnicas e operacionais</span>
+        </summary>
+        <div class="section-body split-grid">
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Ocorrências técnicas</h3>
+              <button type="button" id="addOcTec" class="btn-small btn-success hidden">Adicionar</button>
+            </div>
+            <div class="form-field" style="margin-bottom:12px;">
+              <label>Houve ocorrência técnica?</label>
+              <div id="oc_tecnica_houve_group"></div>
+              <input type="hidden" id="oc_tecnica_houve" value="não">
+            </div>
+            <div id="ocTechState" class="empty-box">Nenhuma ocorrência técnica registrada.</div>
+            <div id="ocTechList" class="list-stack hidden"></div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Ocorrências operacionais</h3>
+              <button type="button" id="addOcOp" class="btn-small btn-success hidden">Adicionar</button>
+            </div>
+            <div class="form-field" style="margin-bottom:12px;">
+              <label>Houve ocorrência operacional?</label>
+              <div id="oc_operacional_houve_group"></div>
+              <input type="hidden" id="oc_operacional_houve" value="não">
+            </div>
+            <div id="ocOpState" class="empty-box">Nenhuma ocorrência operacional registrada.</div>
+            <div id="ocOpList" class="list-stack hidden"></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>
+          <span>Participações no estúdio</span>
+          <span class="summary-meta">Itens ficam recolhidos para reduzir a tela</span>
+        </summary>
+        <div class="section-body">
+          <div class="subcard-header">
+            <h3>Participações</h3>
+            <button type="button" id="addPart" class="btn-small btn-success">Adicionar participação</button>
+          </div>
+          <div id="participacoesEmpty" class="empty-box">Nenhuma participação adicionada.</div>
+          <div id="participacoes" class="list-stack hidden"></div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>
+          <span>Entradas ao vivo</span>
+          <span class="summary-meta">Cada item fica em card recolhido</span>
+        </summary>
+        <div class="section-body">
+          <div class="subcard-header">
+            <h3>Ao vivo</h3>
+            <button type="button" id="addAoVivo" class="btn-small btn-success">Adicionar entrada</button>
+          </div>
+          <div id="aovivoEmpty" class="empty-box">Nenhuma entrada ao vivo adicionada.</div>
+          <div id="aovivo" class="list-stack hidden"></div>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>
+          <span>Outras informações</span>
+          <span class="summary-meta">Texto livre adicional</span>
+        </summary>
+        <div class="section-body">
+          <div class="form-field">
+            <label for="outrasInfo">Informações complementares</label>
+            <textarea id="outrasInfo" rows="5"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <div class="actions" style="margin:16px 0 4px;">
+        <button type="button" id="concluirBtn" class="btn-primary">Gerar relatório</button>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="card hidden">
+      <div class="top-bar">
+        <div>
+          <h2>Relatório concluído</h2>
+          <p class="inline-note" style="margin-top:6px;">O texto final continua completo. Só a entrada de dados ficou mais compacta.</p>
+        </div>
+        <div class="result-actions">
+          <button type="button" id="copyReport" class="btn-secondary">Copiar texto</button>
+          <button type="button" id="shareWhatsApp" class="btn-secondary">Compartilhar no WhatsApp</button>
+          <button type="button" id="downloadPdf" class="btn-secondary">Baixar PDF</button>
+          <button type="button" id="editAgain" class="btn-ghost">Editar dados</button>
+          <button type="button" id="newReport" class="btn-ghost">Novo relatório</button>
+        </div>
+      </div>
+      <textarea id="reportText" readonly></textarea>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

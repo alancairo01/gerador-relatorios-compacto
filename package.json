@@ -1,0 +1,14 @@
+{
+  "name": "gerador-relatorios-compacto",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Gerador de relatórios com interface compacta e geração de PDF.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "pdfkit": "^0.13.0"
+  }
+}
